@@ -14,7 +14,7 @@ const uploadOnCloudinary = async (localFilePath) => {
     const result = await cloudinary.uploader.upload(localFilePath, {
       folder: "glowify",
     });
-    console.log("Image uploaded on Cloudinary", result.url);
+    fs.unlinkSync(localFilePath);
     return result;
   } catch (error) {
     fs.unlinkSync(localFilePath);
