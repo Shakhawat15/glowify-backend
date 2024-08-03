@@ -10,6 +10,7 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
+// Route
 router.post("/register", upload.single("photo_path"), registerUser);
 router.post("/login", loginUser);
 

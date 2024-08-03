@@ -7,7 +7,7 @@ const brandSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    log_path: {
+    logo_path: {
       type: String,
       default: "",
     },
@@ -21,4 +21,4 @@ const brandSchema = new mongoose.Schema(
 
 const Brand = mongoose.model("Brand", brandSchema);
 
-export { Brand };
+export default Brand;
