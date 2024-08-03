@@ -1,9 +1,8 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
+import jwt from "jsonwebtoken";
+import UserModel from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import UserModel from "../models/user.model.js";
-import jwt from "jsonwebtoken";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 // Generate Access Token and Refresh Token
 const generateAccessAndRefreshToken = async (userId) => {
@@ -184,4 +183,4 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     );
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+export { loginUser, logoutUser, refreshAccessToken, registerUser };
