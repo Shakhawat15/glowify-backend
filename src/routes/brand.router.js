@@ -11,10 +11,12 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 
+// routes
+router.get("/all", getAllBrands);
+router.get("/:id", getBrandById);
+
 // secure routes
 router.post("/create", verifyJWT, upload.single("logo_path"), createBrand);
-router.get("/all", verifyJWT, getAllBrands);
-router.get("/:id", verifyJWT, getBrandById);
 router.put("/update/:id", verifyJWT, upload.single("logo_path"), updateBrand);
 router.delete("/delete/:id", verifyJWT, deleteBrand);
 

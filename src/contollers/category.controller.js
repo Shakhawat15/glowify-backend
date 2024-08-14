@@ -18,15 +18,10 @@ const createCategory = asyncHandler(async (req, res) => {
     throw new ApiError(409, "Category already exists");
   }
 
-  console.log("req.files", req.files);
-
   const icon_path = req.files?.icon_path ? req.files.icon_path[0]?.path : null;
   const image_path = req.files?.image_path
     ? req.files.image_path[0]?.path
     : null;
-
-  console.log("icon_path", req.files?.icon_path[0].path);
-  console.log("image_path", image_path);
 
   const category = await CategoryModel.create({
     category_name,

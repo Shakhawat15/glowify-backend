@@ -117,6 +117,38 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
+// Get All Users
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await UserModel.aggregate([
+    {
+      $lookup: {
+        from: "userroles", // Ensure this matches the actual collection name in MongoDB
+        localField: "role_id",
+        foreignField: "_id",
+        as: "user_role_info",
+      },
+    },
+    {
+      $unwind: "$user_role_info",
+    },
+    {
+      $project: {
+        password: 0,
+        refresh_token: 0,
+        "user_role_info._id": 0, // Optionally exclude _id from user_role_info
+      },
+    },
+  ]);
+
+  if (!users || users.length === 0) {
+    throw new ApiError(404, "Users not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, users, "All users fetched successfully"));
+});
+
 // Logout User
 const logoutUser = asyncHandler(async (req, res) => {
   await UserModel.findByIdAndUpdate(
@@ -183,4 +215,4 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     );
 });
 
-export { loginUser, logoutUser, refreshAccessToken, registerUser };
+export { loginUser, logoutUser, refreshAccessToken, registerUser, getAllUsers };

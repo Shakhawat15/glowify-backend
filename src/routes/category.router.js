@@ -11,6 +11,10 @@ import {
 
 const router = express.Router();
 
+// routes
+router.get("/all", getAllCategories);
+router.get("/:id", getCategoryById);
+
 // secure routes
 router.post(
   "/create",
@@ -21,8 +25,6 @@ router.post(
   ]),
   createCategory
 );
-router.get("/all", verifyJWT, getAllCategories);
-router.get("/:id", verifyJWT, getCategoryById);
 router.put(
   "/update/:id",
   verifyJWT,
