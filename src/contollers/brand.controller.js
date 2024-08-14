@@ -4,6 +4,7 @@ import BrandModel from "../models/brand.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Create Brand
 const createBrand = asyncHandler(async (req, res) => {
@@ -21,9 +22,13 @@ const createBrand = asyncHandler(async (req, res) => {
 
   const photoLocalPath = req.file?.path;
 
+  const photo = await uploadOnCloudinary(photoLocalPath);
+
+  console.log("photo", photo);
+
   const brand = await BrandModel.create({
     brand_name,
-    logo_path: photoLocalPath || "",
+    logo_path: photo.secure_url || "",
     is_active,
   });
 

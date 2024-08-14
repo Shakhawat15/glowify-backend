@@ -8,18 +8,16 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Upload an image to Cloudinary
+// Upload an image
 const uploadOnCloudinary = async (localFilePath) => {
   try {
     const result = await cloudinary.uploader.upload(localFilePath, {
       folder: "glowify",
     });
-    fs.unlinkSync(localFilePath); // Remove the local file after upload
-    return result; // Return the Cloudinary upload result
+    fs.unlinkSync(localFilePath);
+    return result;
   } catch (error) {
-    console.error("Cloudinary upload error:", error); // Log the error
-    fs.unlinkSync(localFilePath); // Remove the local file even if upload fails
-    return null; // Return null in case of failure
+    fs.unlinkSync(localFilePath);
   }
 };
 

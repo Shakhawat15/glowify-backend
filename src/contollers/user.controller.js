@@ -3,6 +3,7 @@ import UserModel from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Generate Access Token and Refresh Token
 const generateAccessAndRefreshToken = async (userId) => {
@@ -45,7 +46,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const photoLocalPath = req.file?.path;
 
   //   Upload On Cloudinary
-  //   const photo = await uploadOnCloudinary(photoLocalPath);
+  const photo = await uploadOnCloudinary(photoLocalPath);
 
   const user = await UserModel.create({
     role_id,
@@ -54,7 +55,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     phone,
     password,
-    photo_path: photoLocalPath || "",
+    photo_path: photo || "",
     status,
   });
 
