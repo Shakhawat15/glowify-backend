@@ -20,9 +20,14 @@ const createBrand = asyncHandler(async (req, res) => {
     throw new ApiError(409, "Brand already exists");
   }
 
-  const photoLocalPath = req.file?.path;
+  // Check if there is an image in the request
+  const imageBuffer = req.file?.buffer;
 
-  const photo = await uploadOnCloudinary(photoLocalPath);
+  let photo = { secure_url: "" };
+  if (imageBuffer) {
+    // Upload image to Cloudinary
+    photo = await uploadOnCloudinary(imageBuffer);
+  }
 
   console.log("photo", photo);
 
