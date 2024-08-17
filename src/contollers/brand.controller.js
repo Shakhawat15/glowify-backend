@@ -4,7 +4,6 @@ import BrandModel from "../models/brand.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Create Brand
 const createBrand = asyncHandler(async (req, res) => {
@@ -20,20 +19,11 @@ const createBrand = asyncHandler(async (req, res) => {
     throw new ApiError(409, "Brand already exists");
   }
 
-  // Check if there is an image in the request
-  const imageBuffer = req.file?.buffer;
-
-  let photo = { secure_url: "" };
-  if (imageBuffer) {
-    // Upload image to Cloudinary
-    photo = await uploadOnCloudinary(imageBuffer);
-  }
-
-  console.log("photo", photo);
+  const photoLocalPath = req.file?.path;
 
   const brand = await BrandModel.create({
     brand_name,
-    logo_path: photo.secure_url || "",
+    logo_path: photoLocalPath || "",
     is_active,
   });
 

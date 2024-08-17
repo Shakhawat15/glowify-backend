@@ -46,7 +46,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const photoLocalPath = req.file?.path;
 
   //   Upload On Cloudinary
-  const photo = await uploadOnCloudinary(photoLocalPath);
+  // const photo = await uploadOnCloudinary(photoLocalPath);
 
   const user = await UserModel.create({
     role_id,
@@ -55,7 +55,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
     phone,
     password,
-    photo_path: photo || "",
+    photo_path: photoLocalPath || "",
     status,
   });
 
