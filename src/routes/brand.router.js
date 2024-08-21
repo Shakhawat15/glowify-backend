@@ -6,6 +6,7 @@ import {
   getAllBrands,
   getBrandById,
   updateBrand,
+  updateBrandStatus,
 } from "../contollers/brand.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -19,5 +20,6 @@ router.get("/:id", getBrandById);
 router.post("/create", verifyJWT, upload.single("logo_path"), createBrand);
 router.put("/update/:id", verifyJWT, upload.single("logo_path"), updateBrand);
 router.delete("/delete/:id", verifyJWT, deleteBrand);
+router.patch("/status/:id", verifyJWT, updateBrandStatus);
 
 export default router;

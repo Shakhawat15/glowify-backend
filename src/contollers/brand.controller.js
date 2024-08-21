@@ -98,6 +98,36 @@ const updateBrand = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, updatedBrand, "Brand updated successfully"));
 });
 
+// Update Brand Status
+const updateBrandStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { is_active } = req.body;
+
+  const brand = await BrandModel.findById(id);
+
+  if (!brand) {
+    throw new ApiError(404, "Brand not found");
+  }
+
+  const updatedBrand = await BrandModel.findByIdAndUpdate(
+    id,
+    {
+      is_active,
+    },
+    { new: true }
+  );
+
+  if (!updatedBrand) {
+    throw new ApiError(500, "Brand status not updated");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedBrand, "Brand status updated successfully")
+    );
+});
+
 // Delete Brand
 const deleteBrand = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -111,7 +141,7 @@ const deleteBrand = asyncHandler(async (req, res) => {
   // Delete the image file if it exists
   const imagePath = path.join("./", brand.logo_path);
 
-  if (fs.existsSync(imagePath)) {
+  if (brand.logo_path) {
     fs.unlinkSync(imagePath);
   }
 
@@ -126,4 +156,11 @@ const deleteBrand = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, deletedBrand, "Brand deleted successfully"));
 });
 
-export { createBrand, deleteBrand, getAllBrands, getBrandById, updateBrand };
+export {
+  createBrand,
+  deleteBrand,
+  getAllBrands,
+  getBrandById,
+  updateBrand,
+  updateBrandStatus,
+};
