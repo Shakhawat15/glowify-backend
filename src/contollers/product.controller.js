@@ -235,6 +235,7 @@ const getProductById = asyncHandler(async (req, res) => {
       {
         $match: { _id: objectId },
       },
+      // Lookup for media
       {
         $lookup: {
           from: "media",
@@ -243,6 +244,7 @@ const getProductById = asyncHandler(async (req, res) => {
           as: "media",
         },
       },
+      // Lookup for product details
       {
         $lookup: {
           from: "productdetails",
@@ -251,32 +253,69 @@ const getProductById = asyncHandler(async (req, res) => {
           as: "product_details",
         },
       },
+      // Lookup for category
       {
-        $unwind: { path: "$product_details", preserveNullAndEmptyArrays: true },
+        $lookup: {
+          from: "categories",
+          localField: "category_id",
+          foreignField: "_id",
+          as: "category",
+        },
+      },
+      {
+        $unwind: "$category", // Unwind the category array to get a single object
+      },
+      // Lookup for brand
+      {
+        $lookup: {
+          from: "brands",
+          localField: "brand_id",
+          foreignField: "_id",
+          as: "brand",
+        },
+      },
+      {
+        $unwind: "$brand", // Unwind the brand array to get a single object
       },
       {
         $project: {
           _id: 1,
-          category_id: 1,
-          brand_id: 1,
           title: 1,
           sku: 1,
           rrp: 1,
           quantity: 1,
-          discounted_price: 1,
           discount_type: 1,
           discount_price: 1,
           media: {
             $map: {
               input: "$media",
               as: "m",
-              in: "$$m.path",
+              in: {
+                _id: "$$m._id",
+                mediable_id: "$$m.mediable_id",
+                path: "$$m.path",
+              },
             },
           },
           product_details: {
-            attribute_type: "$product_details.attribute_type",
-            attribute_title: "$product_details.attribute_title",
-            attribute_description: "$product_details.attribute_description",
+            $map: {
+              input: "$product_details",
+              as: "product_details",
+              in: {
+                attribute_type: "$$product_details.attribute_type",
+                attribute_title: "$$product_details.attribute_title",
+                attribute_description:
+                  "$$product_details.attribute_description",
+              },
+            },
+          },
+          category: {
+            _id: "$category._id",
+            name: "$category.category_name",
+          },
+          brand: {
+            _id: "$brand._id",
+            name: "$brand.brand_name",
           },
         },
       },
