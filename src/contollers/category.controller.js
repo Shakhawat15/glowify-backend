@@ -107,6 +107,38 @@ const updateCategory = asyncHandler(async (req, res) => {
     );
 });
 
+// Update Category Status
+const updateCategoryStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { is_active } = req.body;
+
+  const category = await CategoryModel.findById(id);
+
+  if (!category) {
+    throw new ApiError(404, "Category not found");
+  }
+
+  const updatedCategory = await CategoryModel.findByIdAndUpdate(
+    id,
+    { is_active },
+    { new: true }
+  );
+
+  if (!updatedCategory) {
+    throw new ApiError(500, "Category status not updated");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        updatedCategory,
+        "Category status updated successfully"
+      )
+    );
+});
+
 // Delete Category
 const deleteCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -145,4 +177,5 @@ export {
   getAllCategories,
   getCategoryById,
   updateCategory,
+  updateCategoryStatus,
 };

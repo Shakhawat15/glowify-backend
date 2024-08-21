@@ -7,6 +7,7 @@ import {
   getAllCategories,
   getCategoryById,
   updateCategory,
+  updateCategoryStatus,
 } from "../contollers/category.controller.js";
 
 const router = express.Router();
@@ -34,7 +35,7 @@ router.put(
   ]),
   updateCategory
 );
-
+router.patch("/status/:id", verifyJWT, updateCategoryStatus);
 router.delete("/delete/:id", verifyJWT, deleteCategory);
 
 export default router;
