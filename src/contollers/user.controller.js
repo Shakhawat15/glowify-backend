@@ -1,9 +1,9 @@
+import fs from "fs";
 import jwt from "jsonwebtoken";
 import UserModel from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Generate Access Token and Refresh Token
 const generateAccessAndRefreshToken = async (userId) => {
@@ -216,4 +216,97 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     );
 });
 
-export { loginUser, logoutUser, refreshAccessToken, registerUser, getAllUsers };
+// Update User Status
+const updateUserStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const user = await UserModel.findById(id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    id,
+    { status },
+    { new: true }
+  );
+
+  if (!updatedUser) {
+    throw new ApiError(500, "User status not updated");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, updatedUser, "User status updated successfully")
+    );
+});
+
+// Update User
+const updateUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { first_name, last_name, email, phone, status } = req.body;
+
+  const user = await UserModel.findById(id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  const photoLocalPath = req.file?.path;
+
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    id,
+    {
+      first_name,
+      last_name,
+      email,
+      phone,
+      status,
+      photo_path: photoLocalPath || user.photo_path,
+    },
+    { new: true }
+  );
+
+  if (!updatedUser) {
+    throw new ApiError(500, "User not updated");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedUser, "User updated successfully"));
+});
+
+// Delete User
+const deleteUser = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const user = await UserModel.findById(id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (user.photo_path) {
+    fs.unlinkSync(user.photo_path);
+  }
+
+  await UserModel.findByIdAndDelete(id);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "User deleted successfully"));
+});
+
+export {
+  deleteUser,
+  getAllUsers,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  registerUser,
+  updateUser,
+  updateUserStatus,
+};
