@@ -1,4 +1,5 @@
 import BlogModel from "../models/blog.model.js";
+import fs from "fs";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -8,19 +9,20 @@ export const createBlog = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
   const user_id = req.user._id;
 
-  if ([title, description, user_id].some((field) => field?.trim() === "")) {
+  if ([title, description].some((field) => field?.trim() === "")) {
     throw new ApiError(400, "All fields are required");
   }
 
-  const cover_photo_path = req.files?.cover_photo_path
-    ? req.files.cover_photo_path[0]?.path
-    : null;
+  const photoLocalPath = req.file ? req.file?.path : null;
+
+  console.log("photoLocalPath", photoLocalPath);
+  console.log("req.files", req.files);
 
   const blog = await BlogModel.create({
     title,
     description,
     user_id,
-    cover_photo_path: cover_photo_path || "",
+    cover_photo_path: photoLocalPath || "",
   });
 
   if (!blog) {
@@ -67,16 +69,14 @@ export const updateBlog = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Blog not found");
   }
 
-  const cover_photo_path = req.files?.cover_photo_path
-    ? req.files.cover_photo_path[0]?.path
-    : null;
+  const photoLocalPath = req.file ? req.file?.path : null;
 
   const updatedBlog = await BlogModel.findByIdAndUpdate(
     id,
     {
       title,
       description,
-      cover_photo_path: cover_photo_path || blog.cover_photo_path,
+      cover_photo_path: photoLocalPath || blog.cover_photo_path,
     },
     { new: true }
   );
