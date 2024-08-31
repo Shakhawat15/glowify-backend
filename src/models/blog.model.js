@@ -11,6 +11,9 @@ const blogSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    cover_photo_path: {
+      type: String,
+    },
     description: {
       type: String,
       required: true,
