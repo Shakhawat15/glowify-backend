@@ -347,6 +347,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     discount_type,
     discount_price,
     attributes,
+    existingImages,
   } = req.body;
 
   if (
@@ -397,40 +398,52 @@ const updateProduct = asyncHandler(async (req, res) => {
       throw new ApiError(500, "Product not updated");
     }
 
+    const parsedImages = JSON.parse(existingImages);
+
+    console.log("parsedImages", parsedImages);
+
+    // Fetch all existing media entries for the product
+    const existingMedia = await MediaModel.find({
+      mediable_type: "product",
+      mediable_id: product._id,
+    });
+
+    // Check if media exists in parsedImages
+    const mediaToDelete = existingMedia.filter(
+      (media) => !parsedImages.includes(media.path)
+    );
+
+    // Delete the media entries and corresponding files if they don't exist in parsedImages
+    await Promise.all(
+      mediaToDelete.map(async (media) => {
+        try {
+          // Delete the media entry from the database
+          await MediaModel.findByIdAndDelete(media._id);
+
+          // Delete the file from the filesystem
+          fs.unlinkSync(media.path); // or fs.promises.unlink(media.path) if you prefer promises
+        } catch (error) {
+          console.error(`Failed to delete media: ${media.path}`, error);
+        }
+      })
+    );
+
     // // Handling Media Uploads
-    // if (req.files?.length > 0) {
-    //   try {
-    //     await Promise.all(
-    //       req.files.map((file) =>
-    //         MediaModel.create({
-    //           media_type: "image",
-    //           mediable_type: "product",
-    //           mediable_id: product._id,
-    //           path: file.path,
-    //         })
-    //       )
-    //     );
-    //   } catch (error) {
-    //     throw new ApiError(500, "Failed to add media");
-    //   }
-    // }
-
-    // Handle Media Updates
     if (req.files?.length > 0) {
-      // Delete existing media for the product
-      await MediaModel.deleteMany({ mediable_id: product._id });
-
-      // Add new media
-      await Promise.all(
-        req.files.map((file) =>
-          MediaModel.create({
-            media_type: "image",
-            mediable_type: "product",
-            mediable_id: product._id,
-            path: file.path,
-          })
-        )
-      );
+      try {
+        await Promise.all(
+          req.files.map((file) =>
+            MediaModel.create({
+              media_type: "image",
+              mediable_type: "product",
+              mediable_id: product._id,
+              path: file.path,
+            })
+          )
+        );
+      } catch (error) {
+        throw new ApiError(500, "Failed to add media");
+      }
     }
 
     // Handling Attributes
